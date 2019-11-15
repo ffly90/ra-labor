@@ -9,19 +9,21 @@
 
 void SYSTEM_Initialize(void);
 
+const int pinnumber = 4;
+
 void setup() { 
 	SYSTEM_Initialize();  // set 24 MHz clock for CPU and Peripheral Bus
                           // clock period = 41,667 ns = 0,0417 us
-	TRISD &= 0b0111 ;     // set bit 3 of Port D for output
+	TRISDCLR = 1<<pinnumber;     // set bit 3 of Port D for output
 }
 
 void loop() { 
 	int i;
 	while(1) {
-		LATDSET = 0b1000;       // set bit 3 of Port D
+		LATDSET = 1<<pinnumber;       // set bit 3 of Port D
 		for (i=0; i< 1000000; i++);
         
-        LATDCLR = 0b1000;       // clear bit 3 of Port D
+        LATDCLR = 1<<pinnumber;       // clear bit 3 of Port D
         for (i=0; i< 1000000; i++); 
   }
 }
