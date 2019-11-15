@@ -21,7 +21,7 @@ void setup() {
     //select PBCLK as input clock for timer1
     T1CONbits.TCKPS = 0b11; // set prescaler to 1:256
     T1CONbits.TSYNC = 0;
-    PR1 = 9376;
+    PR1 = 9375;
 }
 
 void loop() {
