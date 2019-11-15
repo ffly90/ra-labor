@@ -19,13 +19,15 @@ void setup() {
 }
 
 void loop() { 
-	//int i;
+	int i;
+    int alt_s1_state = 0;
+    int new_s1_state = 0;
 	while(1) {
-		if(PORTB & 1<<9){
-            LATDCLR = 1<<pinnumber;       // set bit 3 of Port D
-        }else{
-            LATDSET = 1<<pinnumber;       // clear bit 3 of Port D
+        new_s1_state = !(PORTB & 1<<9);
+        if(new_s1_state && !alt_s1_state){
+            LATDINV = 1<<pinnumber;       // set bit 3 of Port D
         }
+        alt_s1_state = new_s1_state;
     }
 }
 
