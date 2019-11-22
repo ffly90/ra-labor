@@ -22,18 +22,36 @@ void setup() {
     T1CONbits.TSYNC = 0;
     PR1 = 10000;
     T1CONbits.ON = 1;
+    //ADC Konfiguration
+    ANSELAbits.ANSA0 = 1;
+    TRISASET = 1;
+    AD1CON1bits.SSRC = 0;
+    AD1CHSbits.CH0SA = 0;
+    AD1CON3bits.ADRC = 0;
+    AD1CON3bits.ADCS = 8;
+    AD1CON1bits.ON = 1;
+}
+
+unsigned int readADC() {
+    int ADCResult;
+    AD1CON1bits.SAMP = 1;
+    delay_us(2000);
+    AD1CON1bits.SAMP = 0;
+    
+    while (AD1CON1bits.DONE != 1);
+    return (ADC1BUF0);
 }
 
 void loop() {
     u8 k, einer, zehner, hunderter;
-    int i;
+    int i, r;
     while(1){
-        for(i=0; i<100; i++){
-            writeDec(TMR1/10);
-            //writeDot(1);
+        for(r=0; r<100; r++){
+            writeDec(readADC());
         }
     }
 }
+
 
 int main(void) {
     setup();
