@@ -38,17 +38,34 @@ void setup() {
     IEC0bits.T1IE = 1;
     IFS0bits.T1IF = 0;
     IPC4bits.T1IP = 2;
-    IPC4bits.T1IS = 0;
 }
 
 unsigned int readADC() {
-    
-    AD1CON1bits.SAMP = 1;
-    delay_us(2000);
-    AD1CON1bits.SAMP = 0;
-    
-    while (AD1CON1bits.DONE != 1);
-    return (ADC1BUF0);
+    unsigned int res;
+    asm volatile(
+        "lw $t0, AD1CON1                \n\t"
+        "li $t1, 0xFFFFFFFD             \n\t"
+        "and $t0, $t0, $t1              \n\t"
+        "sw $t0, AD1CON1                \n\t"
+        " 1: "
+        "lw $t0, AD1CON1                \n\t"
+        "andi $t0, $t0, 1               \n\t"
+    //    "beq $t0, $zero, 1b             \n\t"
+        "nop                            \n\t"
+        "lw %0, ADC1BUF0                \n\t"
+    //    "li %0, 123                     \n\t"
+        "lw $t0, AD1CON1                \n\t"
+        "ori $t0, $t0, 2                \n\t"
+        "sw $t0, AD1CON1                "
+        : "=r" (res)
+    );
+//    AD1CON1bits.SAMP = 1;
+//    delay_us(2000);
+//    AD1CON1bits.SAMP = 0;
+//    
+//    while (AD1CON1bits.DONE != 1);
+//    return (ADC1BUF0);
+    return res;
 }
 
 void __ISR(_TIMER_1_VECTOR, IPL2SOFT) handler(void) {
