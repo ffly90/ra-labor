@@ -18,35 +18,52 @@ void setup() {
                           // clock period = 41,667 ns = 0,0417 us
     //Zähler Konfiguration
     T1CONbits.TGATE = 0;
-    T1CONbits.TECS = 0b10;
-    T1CONbits.TCS = 1;
+    T1CONbits.TCS = 0;
     T1CONbits.TCKPS = 0;
     T1CONbits.TSYNC = 0;
-    PR1 = 0x7fff;
+    PR1 = 3225;
     T1CONbits.ON = 1;
     //DAC Konfiguration
     DAC1CONbits.DACDAT = 0;
     DAC1CONbits.DACOE = 1;
-    DAC1CONbits.REFSEL = 11;
+    DAC1CONbits.REFSEL = 0b11;
     DAC1CONbits.ON = 1;
+    //ADC Konfiguration
+    ANSELCbits.ANSC8 = 1;
+    TRISCbits.TRISC8 = 1;
+    AD1CON1bits.SSRC = 0;
+    AD1CON1bits.MODE12 = 0;
+    AD1CHSbits.CH0SA = 0;
+    AD1CON3bits.ADRC = 0;
+    AD1CON3bits.ADCS = 0;
+    AD1CON1bits.ON = 1;
     //Interrupt
-//    IEC0bits.T1IE = 1;
-//    IFS0bits.T1IF = 0;
-//    IPC4bits.T1IP = 2;
-//    AD1CON1bits.SAMP = 1;
+    IEC0bits.T1IE = 1;
+    IFS0bits.T1IF = 0;
+    IPC4bits.T1IP = 2;
+    AD1CON1bits.SAMP = 1;
 }
 
-//void __ISR(_TIMER_1_VECTOR, IPL2SOFT) nextOutput(void) {
-//    DAC1CONbits.DACDAT++;
-//    IFS0bits.T1IF = 0;
-//}
+unsigned int readADC() {
+    AD1CON1bits.SAMP = 0;
+    while (!AD1CON1bits.DONE);
+    AD1CON1bits.SAMP = 1;
 
+}
+
+void __ISR(_TIMER_1_VECTOR, IPL2SOFT) nextOutput(void) {
+    DAC1CONbits.DACDAT++;
+    IFS0bits.T1IF = 0;
+}
+
+unsigned int temp;
 void loop() {
-    int i, r;
-    u32 us = 62;
+    
     while(1){
-        DAC1CONbits.DACDAT++;
-        delay_us(us);
+        readADC();
+        temp = -(860*ADC1BUF0)/341+3225;
+        PR1 = temp;
+        delay_us(1000);
     }
 }
 
