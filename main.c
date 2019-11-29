@@ -10,7 +10,7 @@
 
 void SYSTEM_Initialize(void);
 
-int ADCResult;
+unsigned int analog_in;
 typedef unsigned int u32;
 
 void setup() { 
@@ -33,7 +33,7 @@ void setup() {
     TRISCbits.TRISC8 = 1;
     AD1CON1bits.SSRC = 0;
     AD1CON1bits.MODE12 = 0;
-    AD1CHSbits.CH0SA = 0;
+    AD1CHSbits.CH0SA = 14;
     AD1CON3bits.ADRC = 0;
     AD1CON3bits.ADCS = 0;
     AD1CON1bits.ON = 1;
@@ -41,14 +41,15 @@ void setup() {
     IEC0bits.T1IE = 1;
     IFS0bits.T1IF = 0;
     IPC4bits.T1IP = 2;
-    AD1CON1bits.SAMP = 1;
+    //AD1CON1bits.SAMP = 1;
 }
 
-unsigned int readADC() {
-    AD1CON1bits.SAMP = 0;
-    while (!AD1CON1bits.DONE);
+void readADC() {
     AD1CON1bits.SAMP = 1;
-
+    delay_us(100);
+    while (!AD1CON1bits.DONE);
+    analog_in = ADC1BUF0;
+    AD1CON1bits.SAMP = 0;
 }
 
 void __ISR(_TIMER_1_VECTOR, IPL2SOFT) nextOutput(void) {
@@ -58,12 +59,10 @@ void __ISR(_TIMER_1_VECTOR, IPL2SOFT) nextOutput(void) {
 
 unsigned int temp;
 void loop() {
-    
     while(1){
         readADC();
-        temp = -(860*ADC1BUF0)/341+3225;
+        temp = -(860*analog_in)/341+3225;
         PR1 = temp;
-        delay_us(1000);
     }
 }
 
